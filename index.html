@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cifrador Seguro</title>
+
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor principal */
+        .container {
+            background-color: #ffffff;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Título */
+        h2 { 
+            margin: 0 0 20px 0; 
+            font-weight: 600; 
+            font-size: 1.25rem; 
+        }
+
+        /* Diseño en grid de 2 columnas */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .form-group { width: 100%; }
+
+        /* Ubicación de cada campo en el grid */
+        .item-mensaje { grid-column: 1 / 2; }
+        .item-metodo { grid-column: 2 / 3; }
+        .item-clave { grid-column: 1 / 2; }
+        .item-buttons { grid-column: 1 / 2; margin-top: 8px; }
+        .item-cifrado { grid-column: 1 / 2; }
+        .item-descifrado { grid-column: 2 / 3; }
+
+        /* Estilos de etiquetas */
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-size: 14px; 
+            font-weight: 500; 
+        }
+
+        /* Campos de texto y select */
+        input[type="text"], select {
+            width: 100%; 
+            padding: 6px 8px; 
+            border: 1px solid #767676; 
+            border-radius: 3px;
+            background-color: #fff; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+
+        /* Campos solo lectura */
+        input[readonly] { 
+            background-color: #f0f0f0; 
+            color: #333; 
+        }
+
+        /* Contenedor de botones */
+        .buttons { 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        /* Botones */
+        button {
+            padding: 6px 12px; 
+            border: 1px solid #adadad; 
+            border-radius: 3px;
+            background-color: #f0f0f0; 
+            color: #000; 
+            font-size: 14px; 
+            cursor: pointer;
+        }
+
+        button:hover { background-color: #e1e1e1; }
+        button:active { background-color: #ccc; border-color: #888; }
+
+        .small-note { 
+            font-size: 12px; 
+            color: #555; 
+            margin-top: 8px; 
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Cifrador</h2>
+
+        <!-- Grid que contiene toda la interfaz -->
+        <div class="layout-grid">
+
+            <!-- Campo para el mensaje -->
+            <div class="form-group item-mensaje">
+                <label for="mensaje">Mensaje original:</label>
+                <input type="text" id="mensaje" placeholder="Escribe tu mensaje aquí...">
+            </div>
+
+            <!-- Selector del método de cifrado -->
+            <div class="form-group item-metodo">
+                <label for="metodo">Elegir un método:</label>
+                <select id="metodo">
+                    <option value="cesar">Cifrado César</option>
+                    <option value="vigenere">Cifrado Vigenère</option>
+                </select>
+            </div>
+
+            <!-- Clave usada en ambos algoritmos -->
+            <div class="form-group item-clave">
+                <label for="clave">Clave de cifrado:</label>
+                <input type="text" id="clave" placeholder="Número (César) o palabra (Vigenère)">
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="buttons item-buttons">
+                <button id="btn-cifrar">Cifrar</button>
+                <button id="btn-descifrar">Descifrar</button>
+            </div>
+
+            <!-- Resultado cifrado -->
+            <div class="form-group item-cifrado">
+                <label for="resultado-cifrado">Mensaje cifrado:</label>
+                <input type="text" id="resultado-cifrado" readonly>
+            </div>
+
+            <!-- Resultado descifrado -->
+            <div class="form-group item-descifrado">
+                <label for="resultado-descifrado">Mensaje descifrado:</label>
+                <input type="text" id="resultado-descifrado" readonly>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variable global para almacenar la clave correcta usada al cifrar
+        let claveCorrectaGuardada = null;
+
+        /* ============================================================
+           FUNCION: Cifrado César
+           - Desplaza letras según el número de la clave
+        ============================================================ */
+        function cesar(texto, clave) {
+            let resultado = "";
+
+            for (let i = 0; i < texto.length; i++) {
+                let char = texto[i];
+
+                // Minúsculas
+                if (char >= 'a' && char <= 'z') {
+                    let nuevoCodigo = (char.charCodeAt(0) - 97 + clave + 26) % 26 + 97;
+                    resultado += String.fromCharCode(nuevoCodigo);
+                }
+                // Mayúsculas
+                else if (char >= 'A' && char <= 'Z') {
+                    let nuevoCodigo = (char.charCodeAt(0) - 65 + clave + 26) % 26 + 65;
+                    resultado += String.fromCharCode(nuevoCodigo);
+                }
+                // Caracteres no alfabéticos
+                else {
+                    resultado += char;
+                }
+            }
+            return resultado;
+        }
+
+        /* ============================================================
+           FUNCION: Cifrado/Descifrado Vigenère
+           - Usa palabra como clave y recorre letras
+        ============================================================ */
+        function vigenere(texto, clave_str, modo) {
+            let resultado = "";
+            let indice_clave = 0;
+
+            // Convertimos la clave a minúsculas
+            clave_str = clave_str.toLowerCase();
+
+            for (let i = 0; i < texto.length; i++) {
+                let char = texto[i];
+
+                // Minúsculas
+                if (char >= 'a' && char <= 'z') {
+                    // Calculamos desplazamiento según letra de clave
+                    let shift = clave_str[indice_clave % clave_str.length].charCodeAt(0) - 97;
+
+                    // Si el modo es descifrar, invertimos el desplazamiento
+                    if (modo === "descifrar") shift = -shift;
+
+                    let nuevo = (char.charCodeAt(0) - 97 + shift + 26) % 26 + 97;
+                    resultado += String.fromCharCode(nuevo);
+
+                    indice_clave++;
+                }
+
+                // Mayúsculas
+                else if (char >= 'A' && char <= 'Z') {
+                    let shift = clave_str[indice_clave % clave_str.length].charCodeAt(0) - 97;
+                    if (modo === "descifrar") shift = -shift;
+
+                    let nuevo = (char.charCodeAt(0) - 65 + shift + 26) % 26 + 65;
+                    resultado += String.fromCharCode(nuevo);
+
+                    indice_clave++;
+                }
+
+                // Otros caracteres
+                else {
+                    resultado += char;
+                }
+            }
+            return resultado;
+        }
+
+
+        /* ============================================================
+           FUNCION PRINCIPAL: procesar()
+           - Decide si cifrar o descifrar
+           - Aplica bloqueo si la clave no coincide
+        ============================================================ */
+        function procesar(modo) {
+            const metodo = document.getElementById('metodo').value;
+            const inputMensajeEl = document.getElementById('mensaje');
+            const resultadoCifradoEl = document.getElementById('resultado-cifrado');
+            const resultadoDescifradoEl = document.getElementById('resultado-descifrado');
+            const clave = document.getElementById('clave').value;
+
+            /* BLOQUEO: Si intenta descifrar con clave incorrecta, se cancela */
+            if (modo === 'descifrar') {
+                if (claveCorrectaGuardada === null || clave !== claveCorrectaGuardada) {
+                    console.log("Clave incorrecta. Descifrado bloqueado.");
+                    return; // Se cancela sin descifrar
+                }
+            }
+
+            // Determina el mensaje correcto según el modo
+            let mensaje = inputMensajeEl.value;
+            if (modo === 'descifrar' && resultadoCifradoEl.value.trim() !== "") {
+                mensaje = resultadoCifradoEl.value;
+            }
+
+            // Limpia el resultado viejo
+            if (modo === 'cifrar') {
+                resultadoDescifradoEl.value = "";
+            }
+
+            let resultado = "";
+            let error = null;
+
+            /* ------------------- CIFRADO CÉSAR ------------------- */
+            if (metodo === 'cesar') {
+                const claveNum = parseInt(clave);
+
+                if (isNaN(claveNum)) {
+                    error = "Error: La clave para César debe ser un número.";
+                } else if (claveNum < 0 || claveNum > 25) {
+                    error = "Error: La clave para César debe estar entre 0 y 25.";
+                } else {
+                    let claveFinal = (modo === 'cifrar') ? claveNum : -claveNum;
+
+                    resultado = cesar(mensaje, claveFinal);
+
+                    if (modo === 'cifrar') {
+                        resultadoCifradoEl.value = resultado;
+                        claveCorrectaGuardada = clave; // Guardamos clave
+                    } else {
+                        resultadoDescifradoEl.value = resultado;
+                    }
+                }
+            }
+
+            /* ------------------- CIFRADO VIGENERE ------------------- */
+            else if (metodo === 'vigenere') {
+                if (!/^[a-zA-Z]+$/.test(clave)) {
+                    error = "Error: La clave Vigenère debe ser una palabra (solo letras).";
+                } else {
+                    resultado = vigenere(mensaje, clave, modo);
+
+                    if (modo === 'cifrar') {
+                        resultadoCifradoEl.value = resultado;
+                        claveCorrectaGuardada = clave; // Guardamos clave correcta
+                    } else {
+                        resultadoDescifradoEl.value = resultado;
+                    }
+                }
+            }
+
+            // Si hubo error, lo muestra
+            if (error) {
+                if (modo === 'cifrar') resultadoCifradoEl.value = error;
+                else resultadoDescifradoEl.value = error;
+            }
+        }
+
+        /* Eventos de los botones */
+        document.getElementById('btn-cifrar')
+                .addEventListener('click', () => procesar('cifrar'));
+
+        document.getElementById('btn-descifrar')
+                .addEventListener('click', () => procesar('descifrar'));
+    </script>
+</body>
+</html>
