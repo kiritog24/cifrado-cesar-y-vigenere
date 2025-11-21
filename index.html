@@ -112,16 +112,13 @@
     <div class="container">
         <h2>Cifrador</h2>
 
-        <!-- Grid que contiene toda la interfaz -->
         <div class="layout-grid">
 
-            <!-- Campo para el mensaje -->
             <div class="form-group item-mensaje">
-                <label for="mensaje">Mensaje original:</label>
-                <input type="text" id="mensaje" placeholder="Escribe tu mensaje aquí...">
+                <label for="mensaje">Mensaje original (Solo letras):</label>
+                <input type="text" id="mensaje" placeholder="Escribe texto sin números...">
             </div>
 
-            <!-- Selector del método de cifrado -->
             <div class="form-group item-metodo">
                 <label for="metodo">Elegir un método:</label>
                 <select id="metodo">
@@ -130,25 +127,21 @@
                 </select>
             </div>
 
-            <!-- Clave usada en ambos algoritmos -->
             <div class="form-group item-clave">
                 <label for="clave">Clave de cifrado:</label>
                 <input type="text" id="clave" placeholder="Número (César) o palabra (Vigenère)">
             </div>
             
-            <!-- Botones de acción -->
             <div class="buttons item-buttons">
                 <button id="btn-cifrar">Cifrar</button>
                 <button id="btn-descifrar">Descifrar</button>
             </div>
 
-            <!-- Resultado cifrado -->
             <div class="form-group item-cifrado">
                 <label for="resultado-cifrado">Mensaje cifrado:</label>
                 <input type="text" id="resultado-cifrado" readonly>
             </div>
 
-            <!-- Resultado descifrado -->
             <div class="form-group item-descifrado">
                 <label for="resultado-descifrado">Mensaje descifrado:</label>
                 <input type="text" id="resultado-descifrado" readonly>
@@ -160,10 +153,10 @@
         // Variable global para almacenar la clave correcta usada al cifrar
         let claveCorrectaGuardada = null;
 
-        /* ============================================================
+        /* ---------------------------------------------------------
            FUNCION: Cifrado César
            - Desplaza letras según el número de la clave
-        ============================================================ */
+        --------------------------------------------------------------- */
         function cesar(texto, clave) {
             let resultado = "";
 
@@ -188,10 +181,10 @@
             return resultado;
         }
 
-        /* ============================================================
+        /*-----------------------------------------------------
            FUNCION: Cifrado/Descifrado Vigenère
            - Usa palabra como clave y recorre letras
-        ============================================================ */
+        ----------------------------------------------------------- */
         function vigenere(texto, clave_str, modo) {
             let resultado = "";
             let indice_clave = 0;
@@ -236,11 +229,11 @@
         }
 
 
-        /* ============================================================
+        /* --------------------------------------------------------
            FUNCION PRINCIPAL: procesar()
            - Decide si cifrar o descifrar
            - Aplica bloqueo si la clave no coincide
-        ============================================================ */
+        ----------------------------------------------------------- */
         function procesar(modo) {
             const metodo = document.getElementById('metodo').value;
             const inputMensajeEl = document.getElementById('mensaje');
@@ -321,6 +314,18 @@
 
         document.getElementById('btn-descifrar')
                 .addEventListener('click', () => procesar('descifrar'));
+
+        /* ---------------------------------------------------------
+           NUEVO: Restricción de Números en el Mensaje Original
+           - Detecta cuando el usuario escribe (input)
+           - Elimina cualquier dígito (0-9) usando Regex
+        --------------------------------------------------------- */
+        document.getElementById('mensaje').addEventListener('input', function(e) {
+            // Reemplaza cualquier caracter que sea numero [0-9] con un string vacio
+            this.value = this.value.replace(/[0-9]/g, '');
+        });
+
     </script>
 </body>
 </html>
+
