@@ -154,8 +154,8 @@
         let claveCorrectaGuardada = null;
 
         /* ---------------------------------------------------------
-           FUNCION: Cifrado César
-           - Desplaza letras según el número de la clave
+            FUNCION: Cifrado César
+            - Desplaza letras según el número de la clave
         --------------------------------------------------------------- */
         function cesar(texto, clave) {
             let resultado = "";
@@ -182,8 +182,8 @@
         }
 
         /*-----------------------------------------------------
-           FUNCION: Cifrado/Descifrado Vigenère
-           - Usa palabra como clave y recorre letras
+            FUNCION: Cifrado/Descifrado Vigenère
+            - Usa palabra como clave y recorre letras
         ----------------------------------------------------------- */
         function vigenere(texto, clave_str, modo) {
             let resultado = "";
@@ -230,9 +230,9 @@
 
 
         /* --------------------------------------------------------
-           FUNCION PRINCIPAL: procesar()
-           - Decide si cifrar o descifrar
-           - Aplica bloqueo si la clave no coincide
+            FUNCION PRINCIPAL: procesar()
+            - Decide si cifrar o descifrar
+            - Aplica bloqueo si la clave no coincide
         ----------------------------------------------------------- */
         function procesar(modo) {
             const metodo = document.getElementById('metodo').value;
@@ -316,13 +316,13 @@
                 .addEventListener('click', () => procesar('descifrar'));
 
         /* ---------------------------------------------------------
-           NUEVO: Restricción de Números en el Mensaje Original
-           - Detecta cuando el usuario escribe (input)
-           - Elimina cualquier dígito (0-9) usando Regex
+           
+            - Solo acepta letras y espacios
+            - Borra números y caracteres especiales
         --------------------------------------------------------- */
         document.getElementById('mensaje').addEventListener('input', function(e) {
-            // Reemplaza cualquier caracter que sea numero [0-9] con un string vacio
-            this.value = this.value.replace(/[0-9]/g, '');
+            // Reemplaza todo lo que NO sea letra (a-z, A-Z, tildes, ñ) o espacio
+            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
         });
 
     </script>
